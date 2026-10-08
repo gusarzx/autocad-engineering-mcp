@@ -1,0 +1,1 @@
+"""Typed MCP tools."""

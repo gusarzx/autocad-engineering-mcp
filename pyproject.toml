@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autocad-engineering-mcp"
+version = "0.1.0"
+description = "Local AutoCAD COM MCP server with HVAC and plumbing schematic tools"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["mcp>=2,<3", "pydantic>=2.10,<3", "pydantic-settings>=2.7,<3", "pywin32>=308; sys_platform == 'win32'"]
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: Microsoft :: Windows", "Topic :: Scientific/Engineering"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.25", "ruff>=0.9", "build>=1.2"]
+
+[project.scripts]
+autocad-engineering-mcp = "autocad_engineering_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/autocad_engineering_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+markers = ["autocad: opt-in Windows tests requiring real AutoCAD"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+

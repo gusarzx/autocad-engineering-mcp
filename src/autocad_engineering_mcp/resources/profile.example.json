@@ -1,0 +1,12 @@
+{
+  "layers": {
+    "HVAC_DUCT": 4, "HVAC_EQUIPMENT": 3,
+    "PLUMBING_PIPE": 5, "PLUMBING_EQUIPMENT": 2,
+    "BUILDING": 8, "TEXT": 7, "DIMENSIONS": 7, "AXES": 1
+  },
+  "linetype": "Continuous",
+  "text_height": 150,
+  "symbol_scale": 1,
+  "layer_names": {},
+  "symbols": {}
+}
