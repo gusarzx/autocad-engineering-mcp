@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "autocad-engineering-mcp"
-version = "0.1.0"
+version = "0.2.0"
 description = "Local AutoCAD COM MCP server with HVAC and plumbing schematic tools"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -33,4 +33,3 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
-

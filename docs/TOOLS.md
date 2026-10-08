@@ -1,6 +1,6 @@
 # MCP tools
 
-85 registered tools. Generated from the actual server.
+99 registered tools. Generated from the actual server.
 
 COM implementations require Windows verification. Mock evidence is separate.
 All geometry is 2D XY; engineering axonometry is a flat projection.
@@ -92,3 +92,17 @@ All geometry is 2D XY; engineering axonometry is a flat projection.
 | `plumbing_generate_specification` | Aggregate DWG XData routes/attributed blocks. Optional editable 2D text schedule. |
 | `cad_generate_specification` | Aggregate DWG XData routes/attributed blocks. Optional editable 2D text schedule. |
 | `cad_get_engineering_network` | Read logical nodes/edges; connections require matching route vertices. |
+| `get_pipelines` | Read red/blue LINE and 2D polyline candidates, with a raw-position cursor.         Region=[xmin,ymin,xmax,ymax]. Exact ACI 1/5 or RGB, including ByLayer.         Candidate colours do not identify heating/water systems.         Coordinates are WCS XY and all distances are drawing units, without millimetre conversion.          |
+| `get_selected_pipelines` | Read only current Pickfirst preselection; never open an interactive selection prompt. |
+| `analyze_pipeline_connections` | Find CONNECTED exact ends, INTERSECTION crossings, OPEN_END, NEAR_CONNECTION.         TURN and CURVED_SEGMENT. Tolerance in drawing units detects gaps, never joins automatically.         Offset pages findings; narrow filters if geometry budgets are exceeded.          |
+| `find_pipe_diameter_labels` | Recognise Ø/⌀/DN/Ду/D labels in TEXT/MTEXT; nearest-pipe links are unconfirmed.         max_distance uses drawing units; no diameter sizing.         Layer/region filter labels and candidates; selection filters candidate pipes.         Cursor pages the raw ModelSpace scan, including unmatched text.          |
+| `get_nearby_blocks` | Find block names and insertion points within an XY radius in drawing units.         Uses raw ModelSpace cursor; does not classify blocks as plumbing fixtures.          |
+| `create_pipeline` | Create one ACI-coloured LWPOLYLINE in drawing units. Default MCP_PIPE_RED/BLUE layer is created if absent. Missing named layers need allow_create_layer=true. No auto-save. |
+| `modify_pipeline` | Edit route on the same Handle. LINE retains two endpoints; arc changes and unsafe widths are rejected. Geometry stays in WCS XY, drawing units. dry_run previews without changes. |
+| `extend_pipeline` | Continue the chosen end, points ordered outward. Start continuation is reversed. Retains Handle. Closed/curved route changes and bent LINE extensions are rejected. |
+| `connect_pipelines` | Bridge two open candidates via connection_point. Uses nearest ends unless endpoints are supplied. Mixed colours need allow_mixed_colors=true. Connects endpoints only. |
+| `move_pipeline` | Move one candidate by dx/dy in drawing units, retaining Handle and arcs. |
+| `delete_pipeline` | Delete only the given candidate Handle; requires confirm=true. dry_run previews. Deleted Handle recovery is not guaranteed; inspect DWG and use AutoCAD Undo. |
+| `set_pipeline_color` | Set explicit red ACI 1 or blue ACI 5 on one candidate. |
+| `move_selected_pipelines` | Move preselected red/blue candidates in drawing units. Above max_change requires confirm=true. Use dry_run for preview. |
+| `set_selected_pipelines_color` | Recolour preselected red/blue candidates. Above max_change requires confirm=true; dry_run previews. No interactive prompt. |

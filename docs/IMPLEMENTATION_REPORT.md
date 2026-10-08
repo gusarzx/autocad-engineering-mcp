@@ -1,14 +1,14 @@
 # Итог разработки — 8 октября 2026
 
-Создана локальная предварительная версия AutoCAD Engineering MCP 0.1.0, только
+Создана локальная предварительная версия AutoCAD Engineering MCP 0.2.0, только
 для 2D-чертежей. Пользователь сам публикует проект в GitHub. ZIP не создавался,
 проект и DWG никуда не загружались, конфигурация личного Codex не изменялась.
 
 ## Расположение и файлы
 
 Рабочие исходники находятся в корне этого Git-репозитория.
-Дополнительная локальная копия исходников подготовлена без `.git`, виртуального
-окружения и артефактов сборки. Для следующих правок используйте рабочий репозиторий.
+Текущие изменения для работы с трубопроводами внесены непосредственно в проект.
+Подробности расширения: [PIPELINES_REPORT.md](PIPELINES_REPORT.md).
 
 [Полное дерево файлов](PROJECT_TREE.md), [README RU](../README.md),
 [README EN](../README_EN.md), [каталог инструментов](TOOLS.md).
@@ -19,9 +19,10 @@ pyproject.toml, README.md, README_EN.md, LICENSE, CHANGELOG.md, CONTRIBUTING.md
 src/autocad_engineering_mcp/
   server.py, config.py, __init__.py, __main__.py
   core/        models, geometry, safety, service, exceptions
-  adapters/    base, mock, autocad_com, com_geometry
-  tools/       registration, cad, engineering
+  adapters/    base, mock, autocad_com, com_geometry, com_pipelines, mock_pipelines
+  tools/       registration, cad, engineering, pipelines
   engineering/ models, service
+  pipelines/   models, colors, geometry, common, service, analysis
   resources/   profile.example.json
 scripts/       install.ps1, uninstall.ps1, check_environment.py, generate_tool_catalog.py
 examples/      HVAC, plumbing, shared runner, codex_prompts.md
@@ -31,10 +32,12 @@ docs/          sources, tools, Windows checklist, tree, implementation report
 
 ## Реализованные инструменты
 
-85 инструментов зарегистрированы в сервере; их названия и описания собраны из
+99 инструментов зарегистрированы в сервере; их названия и описания собраны из
 фактической регистрации в [TOOLS.md](TOOLS.md). Есть подключение и документы,
 вся запрошенная базовая 2D-геометрия, слои, блоки/атрибуты, трансформации, размеры,
 пагинация и фильтры, пакетное создание, сценарии ОВ/ВК и спецификации.
+Добавлены 14 инструментов для красных/синих кандидатов в трубы в существующих DWG.
+Схемы исходных 85 инструментов сохранены; новые расстояния — в единицах чертежа.
 
 Сохранение DWG реализовано через COM SaveAs. Mock DWG не создаёт.
 Библиотека встроенных блоков использует простые оригинальные символы, не нормативные УГО.
@@ -46,15 +49,15 @@ docs/          sources, tools, Windows checklist, tree, implementation report
 
 | Проверка | Фактический результат |
 | --- | --- |
-| pytest | **52 passed, 1 skipped**; пропущен реальный COM-тест |
+| pytest | **103 passed, 1 skipped**; пропущен реальный COM-тест |
 | Ruff lint | All checks passed |
 | Ruff format | Проверка форматирования проходит |
 | Editable install | Пакет установлен локально через uv |
 | Wheel + sdist | Оба пакета успешно собраны через python -m build |
 | Wheel install | Wheel установлен с зависимостями в отдельное временное окружение |
 | Console entry point | Установленная консольная команда отвечает SDK-клиенту по stdio |
-| JSON Schema | 85 инструментов, input/output schema, типизированный discriminated batch |
-| Protocol calls | Connect/create document/draw line выполнены через stdio в mock |
+| JSON Schema | 99 инструментов; схемы исходных 85 инструментов не изменены |
+| Protocol calls | Connect/create document/draw line/create pipeline/move/query выполнены через stdio в mock |
 | Examples | Оба сквозных примера ОВ/ВК выполнены в mock, спецификации получены |
 | Environment check | Python/MCP/Pydantic определены; pywin32 отсутствует на Mac ожидаемо |
 
@@ -64,6 +67,8 @@ copy/move/rotate/scale/mirror/delete, слои/атрибуты, hatch boundarie
 batch preflight/dry-run/rollback/partial reporting, ограничения объёма, подтверждения,
 пути/symlink/backup, параметры профиля, схема сети и восстановление из metadata,
 спецификации и плоская проекция ВК. STA-тест проверяет владение потоком на fake COM.
+Дополнительные тесты трубопроводов проверяют геометрию, цвета, отбор, защиты,
+вызовы всех новых wrappers и ошибки восстановления на Python-двойниках ActiveX.
 
 ## Команды для друга на Windows
 

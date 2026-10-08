@@ -11,7 +11,8 @@ from .config import Settings
 from .core.exceptions import CadError
 from .core.service import CadService
 from .engineering.service import EngineeringService
-from .tools import cad, engineering
+from .pipelines.service import PipelineService
+from .tools import cad, engineering, pipelines
 
 
 def create_server(settings: Settings | None = None):
@@ -34,7 +35,7 @@ def create_server(settings: Settings | None = None):
 
     server = MCPServer(
         "autocad-engineering",
-        version="0.1.0",
+        version="0.2.0",
         lifespan=lifespan,
         instructions="Local 2D engineering schematics only. Connect then select/create a document. "
         "Use dry_run to preview changes. Ask the user before confirming deletion, bulk changes, "
@@ -43,6 +44,7 @@ def create_server(settings: Settings | None = None):
     )
     cad.register(server, service)
     engineering.register(server, EngineeringService(service))
+    pipelines.register(server, PipelineService(service))
     return server, service
 
 

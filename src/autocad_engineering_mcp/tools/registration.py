@@ -17,7 +17,7 @@ def annotations(read_only=False, destructive=False):
     )
 
 
-def model_tool(server, name, model, handler, description):
+def model_tool(server, name, model, handler, description, *, destructive=None):
     """One source of truth for direct tool and batch schemas; no untyped **kwargs schema."""
 
     def tool(**kwargs) -> Result:
@@ -54,5 +54,7 @@ def model_tool(server, name, model, handler, description):
         tool,
         name=name,
         description=description,
-        annotations=annotations(destructive="delete" in name),
+        annotations=annotations(
+            destructive="delete" in name if destructive is None else destructive
+        ),
     )

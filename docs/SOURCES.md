@@ -23,3 +23,22 @@ Documentation reviewed on 2026-10-08. Documentation support is separate from run
 
 The adapter implements only a fixed allowlist of ActiveX methods. It does not use
 `SendCommand`, arbitrary AutoLISP, remote hosting or user projects as research material.
+
+## Pipeline extension
+
+- [Coordinates](https://help.autodesk.com/cloudhelp/2018/DEU/AutoCAD-ActiveX-Reference/files/GUID-11CAC0D6-DFCF-4653-8403-CF5AFD689773.htm):
+  writable coordinates can change vertex count. LWPolyline uses OCS XY, legacy Polyline
+  uses OCS XY plus ignored Z; this adapter requires standard normal and zero elevation.
+- [ColorMethod](https://help.autodesk.com/cloudhelp/2024/DEU/AutoCAD-LT-ActiveX-Reference/files/GUID-C555F5A1-A3AE-42F6-B45D-930B42AD5F9A.htm)
+  and [enum values](https://help.autodesk.com/cloudhelp/2015/JPN/AutoCAD-ActiveX/files/GUID-82A124B3-1F6D-44EF-A3AE-CA269A5BC5CB.htm):
+  192 ByLayer, 193 ByBlock, 194 ByRGB, 195 ByACI. TrueColor is read before classifying.
+- [GetBulge](https://help.autodesk.com/cloudhelp/2018/ENU/AutoCAD-ActiveX-Reference/files/GUID-6AC9CF99-7230-4333-859A-1CBACB57B5BA.htm):
+  signed tan(sweep/4), simple polyline restrictions; curved lengths, distances and bounds
+  are retained rather than interpreting arc chords as straight pipes.
+- [IntersectWith](https://help.autodesk.com/cloudhelp/2024/FRA/AutoCAD-ActiveX-Reference/files/GUID-1243A593-5DAE-4DC3-B539-59FDA990E687.htm):
+  intersection coordinates, acExtendNone=0. Actual COM calls await Windows verification.
+- [Layer Lock](https://help.autodesk.com/cloudhelp/2024/ENU/AutoCAD-LT-ActiveX-Reference/files/GUID-49CA344E-0F8C-4AB2-8336-9E696F8BD5D7.htm):
+  locked layers protect editing; pipeline tools additionally reject creation on them.
+
+Earlier-release API references support implementation choices, not a claim that
+AutoCAD 2027 marshaling or transaction behaviour has been tested.

@@ -15,4 +15,4 @@ build/
 *.log
 *.mock.json
 .DS_Store
-
+.idea/

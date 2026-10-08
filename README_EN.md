@@ -3,10 +3,10 @@
 Local stdio MCP server `autocad-engineering` for **editable 2D AutoCAD drawings**,
 HVAC and plumbing schematics controlled from Codex.
 
-[Русский](README.md) · [85-tool catalog](docs/TOOLS.md) ·
+[Русский](README.md) · [99-tool catalog](docs/TOOLS.md) ·
 [Prompt examples](examples/codex_prompts.md) · [Windows checklist](docs/WINDOWS_VERIFICATION.md)
 
-**0.1.0 development preview.** Real Windows/AutoCAD 2027 integration and PowerShell
+**0.2.0 development preview.** Real Windows/AutoCAD 2027 integration and PowerShell
 scripts have not been run. Mock tests do not verify AutoCAD. This is not an official
 Autodesk or OpenAI product. The package is not yet published to GitHub or PyPI.
 
@@ -20,6 +20,60 @@ Autodesk or OpenAI product. The package is not yet published to GitHub or PyPI.
 - Creation-only batches, read-only preflight, dry-run and best-effort COM cleanup.
 - HVAC/plumbing schematics, flat isometric projection, persisted network metadata and schedules.
 - Restricted file access, explicit overwrite permission and separate backups.
+- Colour-based pipeline candidates in existing DWGs, route editing, selection operations,
+  connection analysis, possible diameter-label associations and nearby block lookup.
+
+## Working with pipelines
+
+The 14 additional tools share the existing connection, STA and structured responses.
+`get_pipelines` / `get_selected_pipelines` recognise LINE, LWPOLYLINE and simple 2D
+POLYLINE with exact ACI 1/5 or RGB red/blue, directly assigned or inherited ByLayer.
+Matches are **candidates**, classified RED_PIPE/BLUE_PIPE, never identified as a heating
+or water system. ByBlock and approximate colours are excluded.
+
+**All new pipeline coordinates, distances, displacements and tolerances use drawing
+units directly.** Inspect INSUNITS before translating a request in millimetres.
+Use colour/layer/selection and `[xmin,ymin,xmax,ymax]` region filters, `limit` and
+`next_offset`. Query/block/label cursors refer to raw ModelSpace positions; analysis
+cursors refer to findings. Keep the drawing unchanged while paging.
+
+- `create_pipeline`: one explicit ACI-coloured LWPOLYLINE. Missing default
+  MCP_PIPE_RED/BLUE layers are created; a missing named layer needs `allow_create_layer=true`.
+- `modify_pipeline`, `extend_pipeline`, `move_pipeline`: preserve the Handle.
+  Extension points are ordered outward from the chosen end; start points are reversed
+  and prepended. A LINE retains two endpoints and can extend only straight outward.
+- `delete_pipeline`: one Handle, requires `confirm=true`; dry-run previews deletion.
+- `set_pipeline_color`, `move_selected_pipelines`, `set_selected_pipelines_color`:
+  preflight all candidates, no interactive selection. Bulk edits above max_change
+  need `confirm=true`; every mutation supports `dry_run`.
+- `analyze_pipeline_connections`: exact coincident endpoints are CONNECTED, crossings
+  are INTERSECTION, unmatched ends OPEN_END, nearby distinct ends NEAR_CONNECTION;
+  also returns TURN, CURVED_SEGMENT and self intersections. Never joins automatically.
+- `connect_pipelines`: creates a bridge via connection_point between nearest or explicit
+  endpoints, preserving both inputs. Mixed colours need `allow_mixed_colors=true`.
+- `find_pipe_diameter_labels`: TEXT/MTEXT Ø, ⌀, DN, Ду, D labels; nearest-pipe links
+  remain `confirmed=false`, ties return possible Handles. No sizing calculations.
+- `get_nearby_blocks`: actual names, insertion points, layers and XY distances.
+
+Locked layers, XREF and non-ModelSpace edits are rejected. Only WCS XY, standard normal
+and zero elevation are supported; fitted legacy polylines are rejected. Arcs can be
+read, moved and analysed; route editing rejects arc flattening and unsafe varying widths.
+Existing linked engineering geometry is protected from geometry edits and deletion.
+Analysis is bounded to 500 candidates by default (1000 maximum), 20000 vertices and
+a comparison budget; exceeding these is an explicit error asking for narrower filters.
+
+ActiveX uses grouped Undo marks and captured-state compensation, **not a full DWG
+database transaction**. Error responses report `rollback=restored/failed/unavailable_for_delete`.
+A deleted object cannot be restored with its original Handle by this adapter; inspect
+the drawing and use AutoCAD Undo. Cross-object COM intersections use IntersectWith;
+self intersections use planar line/bulge math. No drawing is auto-saved. Native API
+calls and coincident-geometry behaviour remain unverified on AutoCAD 2027.
+
+Try: “Show red pipeline candidates on layer Pipes”; “Preview a red route through
+[0,0], [1000,0], [1000,500]”; “Move selected pipes down 300 mm after checking units”;
+“Find nearby gaps, without treating crossings as connections”.
+See the [Russian walkthrough](README.md#работа-с-трубопроводами) and
+[implementation report](docs/PIPELINES_REPORT.md).
 
 Target: full AutoCAD 2027 on Windows. Autodesk documents version 26.0 and ActiveX;
 this establishes API availability, not successful execution of this adapter.
@@ -151,7 +205,7 @@ geometry. Schema failures can also appear as standard MCP errors.
 
 ## Available tools
 
-The complete generated [tool catalog](docs/TOOLS.md) lists 85 tools. `autocad_*`
+The complete generated [tool catalog](docs/TOOLS.md) lists 99 tools. `autocad_*`
 handles connection/documents, `cad_draw_*` handles 2D geometry, `cad_*` provides
 reading/layers/blocks/transforms/batches, `hvac_*` and `plumbing_*` build schematics.
 `cad_generate_specification` aggregates supported drawing entities;

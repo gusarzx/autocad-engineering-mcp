@@ -91,6 +91,10 @@ class MockAdapter:
             self.active = args["name"]
             return self.execute("active_document", {})
         doc = self.document()
+        if command.startswith("pipeline_"):
+            from .mock_pipelines import execute
+
+            return execute(self, command, args)
         if command == "active_document":
             return {"data": self.info(doc)}
         if command == "get_units":

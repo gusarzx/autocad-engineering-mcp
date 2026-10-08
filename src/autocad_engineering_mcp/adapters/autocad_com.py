@@ -170,6 +170,10 @@ class ComAdapter:
             self.app.Documents.Item(args["name"]).Activate()
             return {"data": self.document_info(self.document())}
         doc = self.document()
+        if command.startswith("pipeline_"):
+            from .com_pipelines import execute
+
+            return execute(self, command, args)
         if command == "active_document":
             return {"data": self.document_info(doc)}
         if command == "get_units":
